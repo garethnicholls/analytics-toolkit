@@ -1,0 +1,15 @@
+priority,enabled,journey,route_name,match_field,pattern,event_scope,step_type,outcome
+10,true,Trading,Trade placed,event_name,^trade_placed$,event,event,true
+20,true,Trading,Trade preview,event_name,^trade_preview$,event,event,false
+30,true,Account opening,Account opened,event_name,^account_opened$,event,event,true
+40,true,Account management,Add account,event_name,^add_account$,event,event,true
+50,true,Authentication,Login complete,event_name,^login_complete$,event,event,true
+60,true,Authentication,Login,event_name,^login$,event,event,false
+100,true,Research,UK summary,route_path,^/secure/research/uk-summary/?$,page,page,false
+110,true,Research,International markets,route_path,^/secure/research/international-markets/?$,page,page,false
+120,true,Research,UK prices and indices,route_path,^/secure/research/uk-prices-and-indices/?$,page,page,false
+130,true,Research,Instrument report,route_path,^/secure/research/instrument-report/.*$,page,page,false
+200,true,Direct debit,Direct debit,route_path,^/secure/.*direct-debit.*$,page,page,false
+210,true,Regular investing,Regular investing,route_path,^/secure/.*regular-invest.*$,page,page,false
+220,true,Account opening,Open account,route_path,^/.*open-account.*$,page,page,false
+300,true,Search,Site search,event_name,^site_search$,event,event,false

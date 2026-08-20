@@ -1,0 +1,229 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#172a46" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <title>GA4 PathFinder</title>
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="/app.css" />
+    <script src="/app.js" defer></script>
+  </head>
+  <body>
+    <div class="app-shell">
+      <header class="topbar">
+        <div class="brand-mark" aria-hidden="true">PF</div>
+        <div class="brand-copy">
+          <strong>PathFinder</strong>
+          <span>Routes around an event</span>
+        </div>
+        <button class="icon-button" id="openData" type="button" aria-label="Open data settings">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M4 7h10M18 7h2M4 17h2M10 17h10M14 4v6M7 14v6" />
+          </svg>
+          <span>Data</span>
+        </button>
+      </header>
+
+      <main>
+        <section class="source-row" aria-label="Current data source">
+          <span class="live-dot" aria-hidden="true"></span>
+          <strong id="sourceName">Loading…</strong>
+          <span id="sourceDetail"></span>
+        </section>
+
+        <section class="focus-card">
+          <span class="section-label">Focus event</span>
+          <label class="sr-only" for="eventSelect">Choose an event</label>
+          <div class="select-wrap select-wrap--hero">
+            <select id="eventSelect" aria-label="Focus event"></select>
+            <svg viewBox="0 0 20 20" aria-hidden="true"><path d="m5 7 5 5 5-5" /></svg>
+          </div>
+
+          <details class="filter-drawer" id="filterDrawer">
+            <summary>
+              <span>Refine focused sessions</span>
+              <span class="filter-count" id="filterCount">All data</span>
+            </summary>
+            <div class="filter-grid">
+              <label>
+                <span>Platform</span>
+                <select id="platformSelect"><option value="all">All platforms</option></select>
+              </label>
+              <label>
+                <span>Journey</span>
+                <select id="journeySelect"><option value="all">All journeys</option></select>
+              </label>
+              <label>
+                <span>Identity state</span>
+                <select id="identitySelect"><option value="all">All identity states</option></select>
+              </label>
+              <label>
+                <span>Steps either side</span>
+                <select id="contextSelect">
+                  <option value="2">2 steps</option>
+                  <option value="3" selected>3 steps</option>
+                  <option value="4">4 steps</option>
+                  <option value="5">5 steps</option>
+                </select>
+              </label>
+            </div>
+            <button class="text-button" id="resetFilters" type="button">Reset filters</button>
+          </details>
+        </section>
+
+        <nav class="section-nav" aria-label="Analysis sections">
+          <a href="#overview">Overview</a>
+          <a href="#neighbourhood">Journey</a>
+          <a href="#routes">Routes</a>
+        </nav>
+
+        <div class="notice notice--error" id="errorNotice" role="alert" hidden></div>
+        <div class="notice" id="emptyNotice" hidden></div>
+
+        <section class="decision-card" id="overview" aria-live="polite">
+          <div class="decision-eyebrow">
+            <span>Journey readout</span>
+            <span id="decisionConfidence">Focused sessions</span>
+          </div>
+          <h1 id="decisionTitle">Understanding this event…</h1>
+          <p id="decisionBody">We’re finding the clearest route into and out of the selected event.</p>
+          <div class="decision-route" id="decisionRoute" aria-label="Dominant journey"></div>
+        </section>
+
+        <section class="metric-grid" aria-label="Focused event summary">
+          <article class="metric-card">
+            <span>Session reach</span>
+            <strong id="metricSessions">—</strong>
+            <small>sessions containing event</small>
+          </article>
+          <article class="metric-card">
+            <span>Has context before</span>
+            <strong id="metricPrevious">—</strong>
+            <small>have an earlier step</small>
+          </article>
+          <article class="metric-card">
+            <span>Continues after</span>
+            <strong id="metricContinued">—</strong>
+            <small>have a later step</small>
+          </article>
+          <article class="metric-card metric-card--accent">
+            <span>Outcome afterwards</span>
+            <strong id="metricOutcome">—</strong>
+            <small>configured outcome</small>
+          </article>
+        </section>
+
+        <section class="insight-list" id="insights" aria-label="Key observations"></section>
+
+        <section class="content-section" id="neighbourhood">
+          <div class="section-heading">
+            <div>
+              <span class="section-label">Event neighbourhood</span>
+              <h2>What happens around this event?</h2>
+            </div>
+          </div>
+          <p class="section-help">Percentages use every focused session as the denominator.</p>
+          <div class="timeline" id="timeline" aria-live="polite"></div>
+        </section>
+
+        <section class="content-section" id="routes">
+          <div class="section-heading">
+            <div>
+              <span class="section-label">Repeated sequences</span>
+              <h2>Most common routes</h2>
+            </div>
+          </div>
+          <div class="path-list" id="pathList"></div>
+        </section>
+
+        <p class="privacy-note">Hashed session/browser keys only. Entered component values are excluded.</p>
+      </main>
+
+      <div class="loading-layer" id="loadingLayer" aria-live="polite" hidden>
+        <div class="loading-card">
+          <span class="spinner" aria-hidden="true"></span>
+          <strong id="loadingText">Building routes…</strong>
+        </div>
+      </div>
+
+      <dialog class="data-dialog" id="dataDialog">
+        <form method="dialog" class="dialog-shell" id="dataForm">
+          <header class="dialog-header">
+            <div>
+              <span class="section-label">Data source</span>
+              <h2>Build PathFinder</h2>
+            </div>
+            <button class="close-button" id="closeData" value="cancel" aria-label="Close data settings">×</button>
+          </header>
+
+          <div class="dialog-content">
+            <section class="demo-panel">
+              <div>
+                <strong>Use sample data</strong>
+                <p>Fastest way to test the route experience.</p>
+              </div>
+              <button class="secondary-button" id="loadDemo" type="button">Load demo</button>
+            </section>
+
+            <div class="divider"><span>or query raw GA4</span></div>
+
+            <label class="field">
+              <span>Project</span>
+              <input id="projectId" value="ii-bigquery-local" autocomplete="off" />
+            </label>
+            <label class="field">
+              <span>Dataset</span>
+              <input id="datasetId" value="analytics_225781377" autocomplete="off" />
+            </label>
+            <div class="field-row">
+              <label class="field">
+                <span>Start date</span>
+                <input id="startDate" type="date" />
+              </label>
+              <label class="field">
+                <span>End date</span>
+                <input id="endDate" type="date" />
+              </label>
+            </div>
+
+            <details class="advanced-source">
+              <summary>Query settings</summary>
+              <label class="field">
+                <span>Table pattern</span>
+                <input id="tablePattern" value="events_*" autocomplete="off" />
+              </label>
+              <div class="field-row">
+                <label class="field">
+                  <span>Location</span>
+                  <input id="location" value="US" autocomplete="off" />
+                </label>
+                <label class="field">
+                  <span>Maximum billed GB</span>
+                  <input id="maxGb" type="number" value="20" min="0.1" max="500" step="0.1" />
+                </label>
+              </div>
+              <label class="field">
+                <span>Events to read</span>
+                <textarea id="eventNames" rows="9"></textarea>
+              </label>
+              <label class="check-row">
+                <input id="collapseConsecutive" type="checkbox" checked />
+                <span>Collapse repeated consecutive steps</span>
+              </label>
+            </details>
+
+            <div class="notice" id="dataMessage" hidden></div>
+          </div>
+
+          <footer class="dialog-actions">
+            <button class="secondary-button" id="estimateQuery" type="button">Estimate</button>
+            <button class="primary-button" id="loadBigQuery" type="button">Load BigQuery</button>
+          </footer>
+        </form>
+      </dialog>
+    </div>
+  </body>
+</html>

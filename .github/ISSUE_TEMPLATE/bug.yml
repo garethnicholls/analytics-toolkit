@@ -1,0 +1,40 @@
+name: Bug report
+description: Report reproducible incorrect behavior
+title: "[Bug]: "
+labels: [bug, needs-triage]
+body:
+  - type: markdown
+    attributes:
+      value: "Never attach credentials or production analytics data."
+  - type: textarea
+    id: problem
+    attributes:
+      label: What happened?
+      description: Describe observed and expected behavior.
+    validations:
+      required: true
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Reproduction steps
+    validations:
+      required: true
+  - type: dropdown
+    id: data-source
+    attributes:
+      label: Data source
+      options: [Synthetic demo, BigQuery export]
+    validations:
+      required: true
+  - type: input
+    id: environment
+    attributes:
+      label: Environment
+      placeholder: "Browser, device, Python version"
+  - type: checkboxes
+    id: safety
+    attributes:
+      label: Data safety
+      options:
+        - label: I removed credentials, identifiers, and production analytics data.
+          required: true

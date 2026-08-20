@@ -1,0 +1,13 @@
+{
+  "name": "Analytics Toolkit",
+  "image": "mcr.microsoft.com/devcontainers/python:1-3.12-bookworm",
+  "features": {
+    "ghcr.io/devcontainers/features/node:1": { "version": "22" }
+  },
+  "postCreateCommand": "npm ci && python -m pip install -r tools/pathfinder/requirements.txt",
+  "forwardPorts": [5173, 8501],
+  "portsAttributes": {
+    "5173": { "label": "SignalCheck", "onAutoForward": "openPreview" },
+    "8501": { "label": "GA4 PathFinder", "onAutoForward": "notify" }
+  }
+}
